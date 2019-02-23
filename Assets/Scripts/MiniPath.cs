@@ -30,10 +30,10 @@ public class MiniPath : MonoBehaviour {
         dotList.Add(4);
         dotList.Add(5);
 
-        drawPath();
+        //drawPath();
     }
 
-    private void drawPath()
+    public void drawPath()
     {
         for (int j = 0; j < dotList.Count - 1; j++)
         {
