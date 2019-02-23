@@ -8,6 +8,15 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Scene1.unity
     guid: 695129568e4557f4f84344ed540471d2
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Scene2.unity
     guid: 21d79c1c9513eca418d27c6e809eaeab
+  - enabled: 0
+    path: Assets/HoloToolkit-Examples/UX/Scenes/InteractiveButtonComponents.unity
+    guid: b20ddbd2fc80f1e4eae9a3d9f6fffecb
+  - enabled: 0
+    path: Assets/Scenes/MenuScene.unity
+    guid: c28fdebc5192faa458e253526ae45d0a
+  - enabled: 1
+    path: Assets/HoloToolkit-Examples/UX/Scenes/InteractableObjectExample.unity
+    guid: 1694d4d61d90c724b9024cf19ab3f078
