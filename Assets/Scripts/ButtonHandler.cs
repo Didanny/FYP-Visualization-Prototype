@@ -11,13 +11,14 @@ public class ButtonHandler : MonoBehaviour, IInputClickHandler
     public void OnInputClicked(InputClickedEventData eventData)
     {
         response.Invoke();
-        Destroy(gameObject.transform.parent);
+        Debug.Log( gameObject.transform.parent.name );
     }
 
     // Use this for initialization
     void Start () {
-		
-	}
+        Debug.Log("Parent Name:");
+        Debug.Log(gameObject.transform.parent.name);
+    }
 	
 	// Update is called once per frame
 	void Update () {

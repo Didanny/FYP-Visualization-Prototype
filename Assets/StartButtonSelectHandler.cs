@@ -6,11 +6,13 @@ using UnityEngine.Events;
 
 public class StartButtonSelectHandler : MonoBehaviour, IInputClickHandler
 {
+    [SerializeField] GameObject menu;
     [SerializeField] UnityEvent miniPath;
 
     public void OnInputClicked(InputClickedEventData eventData)
     {
         miniPath.Invoke();
+        menu.SetActive(false);
     }
 
     // Use this for initialization
