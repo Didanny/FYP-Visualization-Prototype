@@ -7,6 +7,7 @@ using System.Text;
 using Assets.FYP;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.XR.WSA;
 
 namespace FYP
 {
@@ -18,8 +19,8 @@ namespace FYP
 
         //Navigation fields
         private AnyplaceService anyplace;
-        private IEnumerable<GameObject> poiObjects;
-        private IDictionary<string, GameObject> poiMap; 
+        private List<GameObject> poiObjects;
+        private IDictionary<string,int> poiMap; 
         private const string BASE_URL = "http://fyp.westeurope.cloudapp.azure.com:9000";
 
         private IEnumerator LoadPois(string buid, int floor)
@@ -56,9 +57,15 @@ namespace FYP
                         go.AddComponent<Poi>().FromAnyplace(anyplacePoi);
                         Debug.Log("POI NAME:" + anyplacePoi.name);
                         return go;
-                    });
-                    poiMap = poiObjects.ToDictionary<GameObject, string>(poi => poi.name);
-                    anyplace.GenerateWorldAnchors(33.88535648375892, 35.483956184344606, poiObjects);
+                    }).ToList();
+                    
+                    GenerateWorldAnchors(33.88535648375892, 35.483956184344606);
+                    poiMap = new Dictionary<string, int>();
+                    for (var i = 0; i < poiObjects.Count(); i++)
+                    {
+                        var go = poiObjects[i];
+                        poiMap.Add(go.name, i);
+                    }
                     drawPath();
                 }
             }
@@ -74,14 +81,20 @@ namespace FYP
                 "poi_cfa5d0ab-c8b9-43c1-ba2f-948082383e37",
                 "poi_6351e381-98d2-435a-a474-031170e0f716"
             };
-
+            
             for (int j = 0; j < puids.Count - 1; j++)
             {
-                var source = poiMap[puids[j]].transform.transform;
-                var destination = poiMap[puids[j + 1]].transform.transform;
-                float dist = Vector3.Distance(source.localPosition, destination.localPosition);
+//                GameObject sourceObject;
+                int index;
+                Debug.Log(poiMap.TryGetValue(puids[j], out index));
+                var source = poiObjects[index].transform.transform;
+//                GameObject destObject;
+                poiMap.TryGetValue(puids[j + 1], out index);
+                var destination = poiObjects[index].transform.transform;
+                float dist = Vector3.Distance(source.position, destination.position);
                 int i = 0;
                 //i *= 0.5f / dist;
+                Debug.Log(source.position.ToString());
                 while (i * 1f / dist < dist)
                 {
                     Debug.Log("Distance=" + dist.ToString());
@@ -112,11 +125,37 @@ namespace FYP
         {
             StartCoroutine(LoadPois("building_e80bcc63-c0fb-480a-9eec-e3abf419dd08_1550682078007", 0));
         }
+        
+        public void GenerateWorldAnchors(double lat, double lon)
+        {
+            //TODO check if gameobjects have Poi components
+            Vector3 source = new Vector3((float)lat, 0,(float)lon);
+
+            foreach (var go in poiObjects)
+            {
+                Poi poi = go.GetComponent<Poi>();
+                Vector3 poiVec = new Vector3((float)poi.Lat,0, (float)poi.Lon);
+                go.transform.position = GetRelativePosition(source, poiVec);
+                go.AddComponent<WorldAnchor>();
+                Debug.Log("POI POSITION: " + go.transform.position.ToString());
+            }
+
+        }
+
+        // TODO Fix this. Currently using simple subtraction cuz flat earth, yo. 
+        // Look into conversion of WGS 84 coordinates to meters. If not that at least use Haversine
+        // Currently, using 111,139 as a factor to convert from degrees to meters. This number is taken off a random website
+        // Don't know how accurate it is but hopefully its accurate  enough.
+        private Vector3 GetRelativePosition(Vector3 source, Vector3 point)
+        {
+            int conversion_factor = 111139;
+            return conversion_factor*(point - source);
+        }
 
         // Use this for initialization
         private void Start () {
             Debug.Log("STARTED MAIN BEHAVIOUR");
-            anyplace = new AnyplaceService();
+//            anyplace = new AnyplaceService();
             // MixedRealityToolkit.Instance.RegisterService(typeof(AnyplaceService), Anyplace);
            StartCoroutine(LoadPois("building_e80bcc63-c0fb-480a-9eec-e3abf419dd08_1550682078007", 0));
         
