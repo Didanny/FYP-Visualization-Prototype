@@ -4,15 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class StartButtonSelectHandler : MonoBehaviour, IInputClickHandler
+public class SettingsButtonSelectHandler : MonoBehaviour, IInputClickHandler
 {
-    [SerializeField] GameObject menu;
-    [SerializeField] UnityEvent miniPath;
+
+    // GameObject fields
+    [SerializeField] UnityEvent ShowSettings;
 
     public void OnInputClicked(InputClickedEventData eventData)
     {
-        miniPath.Invoke();
-        menu.SetActive(false);
+        gameObject.SetActive(false);
+        ShowSettings.Invoke();
     }
 
     // Use this for initialization
