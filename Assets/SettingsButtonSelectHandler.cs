@@ -12,7 +12,6 @@ public class SettingsButtonSelectHandler : MonoBehaviour, IInputClickHandler
 
     public void OnInputClicked(InputClickedEventData eventData)
     {
-        gameObject.SetActive(false);
         ShowSettings.Invoke();
     }
 
