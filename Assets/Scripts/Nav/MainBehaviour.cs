@@ -66,35 +66,67 @@ namespace FYP
                         var go = poiObjects[i];
                         poiMap.Add(go.name, i);
                     }
-                    drawPath();
+                    //drawPath();
                 }
             }
        
         }
-        public void drawPath()
+        private IEnumerator findRoute(string sourcePuid, string destPuid, string buid, int floor)
+        {
+            var jsonBody = Encoding.UTF8.GetBytes(string.Format(
+                "{{\"buid\":\"{0}\", \"floor_number\": \"{1}\", \"pois_from\": \"{2}\", \"pois_to\": \"{3}\"}",
+                buid, floor, sourcePuid, destPuid
+            ));
+            var url = BASE_URL + "/anyplace/navigation/route";
+            using (var webRequest = new UnityWebRequest(url))
+            {
+                webRequest.method = UnityWebRequest.kHttpVerbPOST;
+                webRequest.uploadHandler = new UploadHandlerRaw(jsonBody);
+                webRequest.downloadHandler = new DownloadHandlerBuffer();
+                webRequest.SetRequestHeader("Content-Type", "application/json");
+                yield return webRequest.SendWebRequest();
+                if (webRequest.isNetworkError)
+                {
+                    Debug.Log("OurError: " + webRequest.error + ", " + webRequest.responseCode);
+                }
+                else
+                {
+                    var responseBody = Encoding.UTF8.GetString(webRequest.downloadHandler.data);
+                    Debug.Log("Received: " + responseBody);
+
+                    NavigationResponse response = JsonUtility.FromJson<NavigationResponse>(responseBody);
+                    AnyplacePoi[] pois = response.pois;
+                    // Temporarily drawing path here as I'm temporarily doing a lot of shitty stuff
+                    drawPath(pois.Select(poi => poi.puid).ToArray());
+
+                }
+            }
+        }
+
+        public void drawPath(string[] puids)
         {
             //StartCoroutine(LoadPois("building_e80bcc63-c0fb-480a-9eec-e3abf419dd08_1550682078007", 0));
-            var puids = new List<string>()
+            //            var puids = new List<string>()
+            //            {
+            //                "poi_5efad985-688c-4d79-81b8-db0442300c12",
+            //                "poi_10a61ae7-ecd3-4779-91bc-153cda01fa60",
+            //                "poi_cfa5d0ab-c8b9-43c1-ba2f-948082383e37",
+            //                "poi_6351e381-98d2-435a-a474-031170e0f716"
+            //            };
+
+            for (int j = 0; j < puids.Count() - 1; j++)
             {
-                "poi_5efad985-688c-4d79-81b8-db0442300c12",
-                "poi_10a61ae7-ecd3-4779-91bc-153cda01fa60",
-                "poi_cfa5d0ab-c8b9-43c1-ba2f-948082383e37",
-                "poi_6351e381-98d2-435a-a474-031170e0f716"
-            };
-            
-            for (int j = 0; j < puids.Count - 1; j++)
-            {
-//                GameObject sourceObject;
+                //                GameObject sourceObject;
                 int index;
                 Debug.Log(poiMap.TryGetValue(puids[j], out index));
                 var source = poiObjects[index].transform.transform;
-//                GameObject destObject;
+                //                GameObject destObject;
                 poiMap.TryGetValue(puids[j + 1], out index);
                 var destination = poiObjects[index].transform.transform;
                 float dist = Vector3.Distance(source.position, destination.position);
                 int i = 0;
                 //i *= 0.5f / dist;
-                Debug.Log(source.position.ToString());
+                //Debug.Log(source.position.ToString());
                 while (i * 1f / dist < dist)
                 {
                     Debug.Log("Distance=" + dist.ToString());
@@ -121,6 +153,9 @@ namespace FYP
             }
 
         }
+    
+
+        
         public void doThing()
         {
             StartCoroutine(LoadPois("building_e80bcc63-c0fb-480a-9eec-e3abf419dd08_1550682078007", 0));
