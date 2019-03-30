@@ -4,6 +4,8 @@ using UnityEngine;
 using Vision;
 using System.IO;
 using UnityEngine.Networking;
+using System.Linq;
+using UnityEngine.Events;
 
 public class CustomVisionAnalyser : MonoBehaviour {
 
@@ -23,6 +25,9 @@ public class CustomVisionAnalyser : MonoBehaviour {
     /// </summary>
     [HideInInspector] public byte[] imageBytes;
 
+    NavManager navManager;
+    FirebaseManager firebaseManager;
+
     /// <summary>
     /// Initializes this class
     /// </summary>
@@ -30,12 +35,15 @@ public class CustomVisionAnalyser : MonoBehaviour {
     {
         // Allows this instance to behave like a singleton
         Instance = this;
+
+        navManager = GameObject.Find("Managers").GetComponent<NavManager>();
+        firebaseManager = GameObject.Find("Managers").GetComponent<FirebaseManager>();
     }
 
     /// <summary>
     /// Call the Computer Vision Service to submit the image.
     /// </summary>
-    public IEnumerator AnalyseLastImageCaptured(string imagePath)
+    public IEnumerator AnalyseLastImageCaptured(string imagePath, string operation = "label")
     {
         Debug.Log("Analyzing...");
 
@@ -71,7 +79,28 @@ public class CustomVisionAnalyser : MonoBehaviour {
             // The response will be in JSON format, therefore it needs to be deserialized
             AnalysisRootObject analysisRootObject = new AnalysisRootObject();
             analysisRootObject = JsonUtility.FromJson<AnalysisRootObject>(jsonResponse);
+            QRObject qRObject = (analysisRootObject.predictions.ToList())[0];
+            string data = qRObject.tagName;
+            data = data.Substring(7);
 
+            switch (operation)
+            {
+                case "label":
+                    SceneOrganiser.Instance.FinaliseLabel(analysisRootObject);
+                    break;
+                case "get_location":
+                    // TODO Validate data, i.e error handling
+                    var parameters = data.Split(',');
+                    var buid = parameters[0];
+                    var floor_number = int.Parse(parameters[1]);
+                    StartCoroutine(navManager.LoadPois(buid, floor_number));
+                    break;
+                case "get_worker":
+                    firebaseManager.loadWorker(data);
+                    break;
+                default:
+                    break;
+            }
             SceneOrganiser.Instance.FinaliseLabel(analysisRootObject);
         }
     }

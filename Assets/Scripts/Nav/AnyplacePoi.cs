@@ -12,8 +12,5 @@ namespace Assets.FYP
         public string buid;
         public string floor_number;
         public string name;
-
-       
     }
-
 }

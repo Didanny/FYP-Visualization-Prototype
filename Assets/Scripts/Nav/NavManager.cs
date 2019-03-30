@@ -71,7 +71,7 @@ public class NavManager : MonoBehaviour {
 	
 	     
 
-    private IEnumerator LoadPois(string buid, int floor)
+    public IEnumerator LoadPois(string buid, int floor)
     {
         var jsonBody = Encoding.UTF8.GetBytes(string.Format("{{\"buid\":\"{0}\", \"floor_number\": \"{1}\"}}", buid, floor));
         var url = BASE_URL + "/anyplace/mapping/pois/all_floor";
