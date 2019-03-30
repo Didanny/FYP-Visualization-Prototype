@@ -192,7 +192,7 @@ namespace FYP
             Debug.Log("STARTED MAIN BEHAVIOUR");
 //            anyplace = new AnyplaceService();
             // MixedRealityToolkit.Instance.RegisterService(typeof(AnyplaceService), Anyplace);
-           StartCoroutine(LoadPois("building_e80bcc63-c0fb-480a-9eec-e3abf419dd08_1550682078007", 0));
+           //StartCoroutine(LoadPois("building_e80bcc63-c0fb-480a-9eec-e3abf419dd08_1550682078007", 0));
         
 		
         }

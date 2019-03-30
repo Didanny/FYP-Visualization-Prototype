@@ -147,7 +147,7 @@ public class SceneOrganiser : MonoBehaviour
 
     public void FinaliseLabel(AnalysisRootObject analysisObject)
     {
-        if (analysisObject.predictions != null)
+        if (analysisObject.predictions != null && analysisObject.predictions.ToList().Count!=0)
         {
             lastLabelPlacedText = lastLabelPlaced.GetComponent<TextMesh>();
 
